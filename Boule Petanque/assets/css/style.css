@@ -166,7 +166,8 @@ h1, h2, h3, h4, h5, h6 {
   padding: 10px 0 10px 30px;
   font-family: "Raleway", sans-serif;
   font-size: 15px;
-  color: #47536e;
+  font-weight: bold;
+  color: #339933;
   white-space: nowrap;
   transition: 0.3s;
 }
@@ -178,11 +179,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar a:hover, .navbar .active, .navbar li:hover > a {
-  color: #5777ba;
+  color: #33cc33;
+
 }
 
 .navbar .getstarted {
-  background: #5777ba;
+  background: #339933;
   color: #fff;
   padding: 12px 25px;
   margin-left: 30px;
@@ -228,7 +230,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar .dropdown ul a:hover, .navbar .dropdown ul .active:hover, .navbar .dropdown ul li:hover > a {
-  color: #5777ba;
+  color: #339933;
 }
 
 .navbar .dropdown:hover > ul {
@@ -263,7 +265,7 @@ h1, h2, h3, h4, h5, h6 {
 * Mobile Navigation 
 */
 .mobile-nav-toggle {
-  color: #47536e;
+  color: #33cc33;
   font-size: 28px;
   cursor: pointer;
   display: none;
@@ -319,11 +321,11 @@ h1, h2, h3, h4, h5, h6 {
 .navbar-mobile a {
   padding: 10px 20px;
   font-size: 15px;
-  color: #47536e;
+  color: #339933;
 }
 
 .navbar-mobile a:hover, .navbar-mobile .active, .navbar-mobile li:hover > a {
-  color: #5777ba;
+  color: #33cc33;
 }
 
 .navbar-mobile .getstarted {
@@ -355,7 +357,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar-mobile .dropdown ul a:hover, .navbar-mobile .dropdown ul .active:hover, .navbar-mobile .dropdown ul li:hover > a {
-  color: #5777ba;
+  color: #339933;
 }
 
 .navbar-mobile .dropdown > .dropdown-active {
