@@ -194,7 +194,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar .getstarted:hover {
-  background: #748ec6;
+  background: #33cc33;
   color: #fff;
 }
 
@@ -384,7 +384,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #hero h2 {
-  color: #fff;
+  color: #33adff;
+  font-weight: bold;
   margin-bottom: 50px;
   font-size: 20px;
 }
