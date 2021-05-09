@@ -265,7 +265,7 @@ h1, h2, h3, h4, h5, h6 {
 * Mobile Navigation 
 */
 .mobile-nav-toggle {
-  color: #33cc33;
+  color: #33cc33;;
   font-size: 28px;
   cursor: pointer;
   display: none;
@@ -372,18 +372,6 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
   overflow: hidden;
   padding: 140px 0 100px 0;
-}
-
-#hero::before {
-  content: '';
-  position: absolute;
-  right: -100%;
-  top: 20%;
-  width: 250%;
-  height: 200%;
-  z-index: -1;
-  background-color: #e8ecf5;
-  transform: skewY(135deg);
 }
 
 #hero h1 {
