@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+</head>
+
+<body>
+  <script>
+    const g = -9.81;
+    const g_half = g / 2.0;
+    const decel = -2.4;
+    const d_half = decel / 2.0;
+    const MAX_BALLS = 13;
+    var b_list = [MAX_BALLS];
+    var balls_in = 0;
+
+    AFRAME.registerComponent('move', {
+      schema: {
+        x: { type: 'number' },
+        y: { type: 'number' },
+        z: { type: 'number' }
+      },
+
+
+      init: function () {
+        b_list[balls_in] = this;
+        balls_in += 1;
+        this.PosStart = new THREE.Vector3();
+        this.Vstart = new THREE.Vector3();
+        this.PosStart.x = this.el.object3D.position.x;
+        this.PosStart.y = this.el.object3D.position.y;
+        this.PosStart.z = this.el.object3D.position.z;
+        this.Vstart.x = this.data.x;
+        this.Vstart.y = this.data.y;
+        this.Vstart.z = this.data.z;
+        this.vhsqr = this.Vstart.z*this.Vstart.z + this.Vstart.x*this.Vstart.x;
+        this.v_h = Math.sqrt(this.vhsqr);
+        this.init_fly();
+        this.t0 = -1;
+      },
+
+      add_new_ball: function() {
+        if(balls_in < MAX_BALLS) {
+          var sceneEl = document.querySelector('a-scene');
+          var k = document.createElement('a-sphere');
+          var phi = Math.PI * (balls_in-1) / (4.0 * (MAX_BALLS-1)) + Math.PI/4.0;
+          var y = Math.sin(phi) * 7;
+          var z = Math.cos(phi) * -7;
+          k.setAttribute("id", "k" + balls_in);
+          const ma = "x: 0; y: "+y+"; z: "+z +";";
+          console.log(ma);
+          k.setAttribute("move", ma);
+          k.setAttribute("position", "0 0.75 0");
+          k.setAttribute("radius", "0.04");
+          k.setAttribute("color", "orange");
+          sceneEl.appendChild(k);
+        }
+      },
+
+      stopped: function(t) {
+        ;
+      },
+
+      roll: function(t) {
+        //console.log("roll");
+        if(this.v_h>0.0) {
+          let s_dt = ((d_half * t + this.v_h) * t) / this.v_h;
+          this.el.object3D.position.x = this.PosStart.x + (this.Vstart.x * s_dt);
+          this.el.object3D.position.z = this.PosStart.z + (this.Vstart.z * s_dt);
+        }
+        this.el.object3D.position.y = this.PosStart.y;
+      },
+
+      fly: function(t) {
+        this.el.object3D.position.x = this.PosStart.x + (this.Vstart.x * t);
+        this.el.object3D.position.z = this.PosStart.z + (this.Vstart.z * t);
+        this.el.object3D.position.y = this.PosStart.y + (g_half * t + this.Vstart.y) * t;
+      },
+
+      change_nop: function () {
+        ;
+      },
+
+      change_to_stop: function () {
+        if (this.v_h > 0.0) {
+          s_tspan = ((d_half * this.tspan + this.v_h) * this.tspan) / this.v_h;
+        } else {
+          s_tspan = 0.0;
+        }
+
+        this.PosStart.x += this.Vstart.x * s_tspan;
+        this.PosStart.z += this.Vstart.z * s_tspan;
+        this.PosStart.y = this.el.components.geometry.data.radius;
+        this.t0 += this.tspan * 1000.0;
+        this.Vstart.x = 0.0;
+        this.Vstart.z = 0.0;
+        this.Vstart.y = 0.0;
+        this.v_h = 0.0;
+        this.vhsqr = 0.0;
+        this.movement = this.stopped;
+        this.change = this.change_nop;
+        // if(this.el.id == 'jack') {
+        //   var inputs = document.querySelectorAll("a-entity[line]");
+        //   for(var i = 0; i < inputs.length; i++) {
+        //     inputs[i].setAttribute('visible', false);
+        //   }
+        // }
+        this.add_new_ball();
+      },
+
+      change_to_roll: function () {
+        this.PosStart.x += this.Vstart.x * this.tspan;
+        this.PosStart.z += this.Vstart.z * this.tspan;
+        this.PosStart.y = this.el.components.geometry.data.radius;
+        this.t0 += this.tspan * 1000.0;
+        // ist der Einschlagwinkel größer 45° wird die horizontale Geschwindigkeit reduziert
+        // mit dem quadrierten Verhältnis der horizontalen zu vertikalen Geschwindigkeitskomponente beim Aufprall
+        // let vz = (Ball::GHALF * self.tspan + self.vz) * self.tspan;
+        let vz = g * this.tspan + this.Vstart.y;
+        let faktor = Math.min(this.vhsqr / (vz * vz), 1.0);
+        // if (faktor<0.3) { faktor=0.0;}
+        this.Vstart.x *= faktor;
+        this.Vstart.z *= faktor;
+        this.Vstart.y = 0.0;
+        this.init_roll();
+      },
+
+      init_roll: function () {
+        this.tspan = this.v_h / -decel;
+          // self.s_tspan = ((d_half * this.tspan + this.v_h) * this.tspan) / this.v_h;
+          this.movement = this.roll;
+          this.change = this.change_to_stop;
+      },
+
+      init_fly: function () {
+        let h0 = this.PosStart.y - this.el.components.geometry.data.radius;
+        let discriminant = this.Vstart.y * this.Vstart.y - 2.0 * g * h0;
+        this.tspan = (-Math.sqrt(discriminant) - this.Vstart.y) / g;
+        this.movement = this.fly;
+        this.change = this.change_to_roll;
+      },
+
+      tick: function (time, timeDelta) {
+        if(this.t0 < 0.0) {
+          this.t0 = time;
+        }
+        if((time - this.t0) > this.tspan * 1000.0) {
+          // console.log("change");
+          this.change();
+        }
+
+        if(time > this.t0) {
+          let t = (time - this.t0) / 1000.0;
+          this.movement(t);
+        }
+      }
+    });
+
+    </script>
+  <a-scene>
+      <a-plane position="0 0 -7.5" rotation="-90 0 0" width="4" height="15" color="grey"></a-plane>
+      <!-- <a-entity line="start: -1 0.0001 -6; end: 1 0.0001 -6; color: white"></a-entity>
+      <a-entity line="start: -1 0.0001 -10; end: 1 0.0001 -10; color: white"></a-entity>
+      <a-entity line="start: -1 0.0001 -6; end: -1 0.0001 -10; color: white"></a-entity>
+      <a-entity line="start: 1 0.0001 -6; end: 1 0.0001 -10; color: white"></a-entity> -->
+      <a-circle radius="0.55" rotation="-90 0 0" position="0 0.0001 0" color="white"></a-circle>
+      <a-circle radius="0.5" rotation="-90 0 0" position="0 0.0002 0" color="grey"></a-circle>
+      <a-sky color="#E0E0FF"></a-sky>
+      <a-entity camera="active: true" position="-6 1.6 -7.5" rotation="0 90 0" look-controls wasd-controls></a-entity>
+      <a-sphere id="jack" move="x: 0; y: 4; z: -5" position="0 0.75 0" radius="0.015" color="red"></a-sphere>
+  </a-scene>
+</body>
+
+</html>
